@@ -27,6 +27,18 @@ output application/json
 read(payload as String,'application/json')]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="25d6fbc3-bb71-4542-a177-efc323d817c7" message="#[payload]"/>
+		<set-variable value="#[output application/json&#10;---&#10;payload.rfid == p('rfid.authorized')]" doc:name="authorized" doc:id="19e8ebf2-62a6-460e-9cfc-b790b588c7f3" variableName="authorized" />
+		<ee:transform doc:name="Transform Message" doc:id="db922654-d5e4-4834-94f6-1045eb1eca40" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	authorized: vars.authorized
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<mqtt3:publish doc:name="Publish" doc:id="7bc923bb-0dbd-4634-b0fe-27ca0dc7e4a0" config-ref="MQTT3Config" topic="${channel.target}"/>
+		<logger level="INFO" doc:name="Logger" doc:id="25d6fbc3-bb71-4542-a177-efc323d817c7" message='#[if (vars.authorized) "GRANTED"&#10;else "DENIED"]'/>
 	</flow>
 </mule>

@@ -1,6 +1,10 @@
 channel:
-  hub:    "iot-hub"
+  hub:          "iot-hub"
+  target:       "door-0"
 
 mqtt:
-  host:   "192.168.100.112"
-  port:   "1883"
+  host:         "192.168.100.112"
+  port:         "1883"
+
+rfid:
+  authorized:   "88482727c"
