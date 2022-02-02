@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:mqtt3="http://www.mulesoft.org/schema/mule/mqtt3"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mqtt3 http://www.mulesoft.org/schema/mule/mqtt3/current/mule-mqtt3.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<mqtt3:config name="MQTT3Config" doc:name="MQTT3 Config" doc:id="642ca844-102b-4303-91e7-3b0d14426961" >
+		<mqtt3:form-connection host="${mqtt.host}" port="${mqtt.port}" >
+			<mqtt3:client-id-generator >
+				<mqtt3:client-id-random-suffix-generator />
+			</mqtt3:client-id-generator>
+		</mqtt3:form-connection>
+	</mqtt3:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="4f4915a6-a9a8-4007-8216-79c8a82accdf" file="config.yaml" />
+	<flow name="mule-mqtt-iotFlow" doc:id="cb195e9a-adae-43be-a696-f23ddaf2ac98" >
+		<mqtt3:listener doc:name="On Hub Message" doc:id="bcbf515d-4de0-4d65-a21e-5285d5ad130d" config-ref="MQTT3Config">
+			<mqtt3:topics >
+				<mqtt3:topic topicFilter="${channel.hub}" />
+			</mqtt3:topics>
+		</mqtt3:listener>
+		<ee:transform doc:name="Transform Message" doc:id="88f82799-7001-46c9-a32c-8693fb106ab0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+read(payload as String,'application/json')]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="25d6fbc3-bb71-4542-a177-efc323d817c7" message="#[payload]"/>
+	</flow>
+</mule>
